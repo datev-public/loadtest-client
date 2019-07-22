@@ -13,4 +13,4 @@ applications:
       APP_CONFIG_NUMBER_OF_LOOPS: 10000
       APP_CONFIG_TARGET_HOST: loadtest1.eu-gb.mybluemix.net
       APP_CONFIG_SUMMARISER_INTERVAL: 60
-      APP_CONFIG_JMX_FILE: 'jmx/fib1-only-10threads-1000calls.jmx'
+      APP_CONFIG_JMX_FILE: 'jmx/fib1-only.jmx'
