@@ -1,8 +1,5 @@
 # Spring Boot Project als Load-Test-Runner für JMeter Files in PCF
 
-- Siehe auch https://git.zd.datev.de/T08225A/mywiki/blob/master/In-Arbeit/lasttest-paas.md
-- Siehe auch https://git.zd.datev.de/webappcommunity/playground/loadtest-paas
-
 Diese Spring-Boot-Anwendung kann
 
 - eine JMeter JMX-Datei in Cloud-Foundry in mehreren CF-Instanzen zur Ausführung bringen
