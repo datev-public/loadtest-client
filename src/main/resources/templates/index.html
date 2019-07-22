@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <!-- Bootstrap 4 JS -->
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/popper.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <title>JMeter Runner</title>
+</head>
+<body>
+
+<div class="container-fluid">
+    <h3>
+        <span>JMeter Runner</span>
+        &nbsp;
+        <span th:if="${instanceIndex}">running in CF instance </span>
+        <span th:text="${instanceIndex}"></span>
+        &nbsp;-&nbsp;v<span th:text="${buildProperties.version}"></span>
+        &nbsp;(<span th:text="${#dates.format(buildProperties.time, 'dd-MM-yyyy HH:mm')}"></span>)
+    </h3>
+
+    <div class="accordion" id="accordionMain">
+        <div class="card">
+            <div class="card-header" id="headingResults">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseResults"
+                            aria-expanded="true" aria-controls="collapseResults">Start / Stop - - - Result Review</button>
+                    <span th:if="${running}" class="badge badge-success">running</span>
+                    <span th:if="!${running}" class="badge badge-dark">not running</span>
+                    &nbsp;
+                    <span th:if="${running}" class="badge badge-success" th:text="${configuration.jmxFile}"></span>
+                    &nbsp;
+                    <span th:if="${running}" class="badge badge-success" th:text="${configuration.targetUrl}"></span>
+                </h5>
+            </div>
+            <div id="collapseResults" class="collapse show" aria-labelledby="headingResults" data-parent="#accordionMain">
+                <div class="card-body">
+                    <div class="form-group">
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <button class="btn btn-sm" th:classappend="${running} ? btn-success : btn-outline-success"
+                                    onclick="window.location.href='results?running=true'"> ON </button>
+                            <button class="btn btn-sm" th:classappend="!${running} ? btn-danger : btn-outline-danger"
+                                    onclick="window.location.href='results?running=false'"> OFF </button>
+                        </div>
+                        <button id="button-refresh" type="button" class="btn btn-secondary btn-sm" onclick="window.location.href='results'">Refresh</button>
+                        <button id="button-purge" type="button" class="btn c btn-sm" onclick="window.location.href='results?purge=true'">Purge Results</button>
+                    </div>
+                    <div class="col card" style="padding: 1em;">
+                        <div class="card-block">
+                            <h5 class="card-title"  style="font-size: 80%;">
+                                <span>Summary of all Instances  -  Time = </span>
+                                <span th:text="${now}"></span>
+                            </h5>
+                            <table style="width:100%; font-size: 75%;">
+                                <tbody>
+                                <tr>
+                                    <th>Min</th>
+                                    <th>Average</th>
+                                    <th>Max</th>
+                                    <th>Samples</th>
+                                    <th>Errors</th>
+                                    <th>Error-Rate</th>
+                                    <th>Elapsed</th>
+                                    <th>RPS</th>
+                                </tr>
+                                <tr>
+                                    <td th:text="${summary.min}">min</td>
+                                    <td th:text="${#numbers.formatDecimal(summary.average, 0, 'COMMA', 2, 'POINT')}">average</td>
+                                    <td th:text="${summary.max}">max</td>
+                                    <td th:text="${summary.numSamples}">numSamples</td>
+                                    <td th:text="${summary.errorCount}">errorCount</td>
+                                    <td th:text="${summary.errorPercentageString}">errorPercentageString</td>
+                                    <td th:text="${summary.elapsed} / 1000">elapsed</td>
+                                    <td th:text="${#numbers.formatDecimal(summary.rate, 0, 'COMMA', 2, 'POINT')} + ' / sec'">RPS</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col card" style="padding: 1em;">
+                        <div class="card-block">
+                            <h5 class="card-title"  style="font-size: 80%">
+                                <span>Latest Summary Collections</span>
+                                <span> (</span>
+                                <a href="results?all=false"><span th:text="${shownSummaries}">0</span></a>
+                                <span> of </span>
+                                <a href="results?all=true"><span th:text="${totalSummaries}">0</span></a>
+                                <span>)</span>
+                            </h5>
+                            <table style="width:100%; font-size: 75%;">
+                                <tbody>
+                                <tr>
+                                    <th>Instance / Index</th>
+                                    <th>Time</th>
+                                    <th>Min / Average / Max</th>
+                                    <th>Error / Samples / Error-Rate</th>
+                                    <th>Elapsed Sec</th>
+                                    <th>RPS</th>
+                                    <th>JMX File</th>
+                                    <th>Active / Started / Finished</th>
+                                </tr>
+                                <tr th:each="entry : ${summaries}">
+                                    <td th:text="${entry.instance} + '/' + ${entry.instanceIndex}"></td>
+                                    <td th:text="${entry.publishTimeString}"></td>
+                                    <td th:text="${entry.min} + ' / ' + ${entry.average} + ' / ' + ${entry.max}"></td>
+                                    <td th:if="${entry.errorCount} == 0" th:text="${entry.errorCount} + ' / ' + ${entry.numSamples} + ' / ' + ${entry.errorPercentageString}"></td>
+                                    <td th:if="${entry.errorCount} != 0" th:text="${entry.errorCount} + ' / ' + ${entry.numSamples} + ' / ' + ${entry.errorPercentageString}" style="color:red"></td>
+                                    <td th:text="${#numbers.formatDecimal(entry.elapsed / 1000, 0, 'COMMA', 0, 'POINT')}"></td>
+                                    <td th:text="${#numbers.formatDecimal(entry.rate, 0, 'COMMA', 2, 'POINT')} + ' / sec'"></td>
+                                    <td th:text="${entry.jmxFile}"></td>
+                                    <td th:text="${entry.activeThreads} + ' / ' + ${entry.startedThreads} + ' / ' + ${entry.finishedThreads}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingSettings">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseSettings"
+                            aria-expanded="false" aria-controls="collapseSettings">Settings</button>
+                    &nbsp;
+                    <button id="button-edit" type="button" class="btn btn-secondary btn-sm" onclick="window.location.href='properties'">Edit</button>
+                </h5>
+            </div>
+            <div id="collapseSettings" class="collapse show" aria-labelledby="headingSettings" data-parent="#accordionMain">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col" style="padding: 1em; font-size: 75%;">
+                            <div class="card-block">
+                                <table>
+                                    <tbody>
+                                    <tr><th width="50%">Setting</th><th width="50%" >Value</th></tr>
+                                    <tr><td>jmxFile: </td><td><a th:text="${configuration.jmxFile}" th:href="'../../api/jmx-files/' + ${#strings.replace(configuration.jmxFile, '/', '..')}"></a></td></tr>
+                                    <tr><td>targetHost: </td><td th:text="${configuration.targetHost}"></td></tr>
+                                    <tr><td>targetPort: </td><td th:text="${configuration.targetPort}"></td></tr>
+                                    <tr><td>targetProtocol: </td><td th:text="${configuration.targetProtocol}"></td></tr>
+                                    <tr><td>numberOfThreads: </td><td th:text="${configuration.numberOfThreads}"></td></tr>
+                                    <tr><td>runsInOneLoop: </td><td th:text="${configuration.runsInOneLoop}"></td></tr>
+                                    <tr><td>numberOfLoops: </td><td th:text="${configuration.numberOfLoops}"></td></tr>
+                                    <tr><td>waitIntervalMilliseconds: </td><td th:text="${configuration.waitIntervalMilliseconds}"></td></tr>
+                                    <tr><td>csvFiles: </td><td th:text="${configuration.csvFiles}"></td></tr>
+                                    <tr><td>logFilesEnabled: </td><td th:text="${configuration.logFilesEnabled}"></td></tr>
+                                    <tr><th width="50%">Metrics</th><th width="50%" >Value</th></tr>
+                                    <tr><td>loopIndex: </td><td th:text="${loopIndex}"></td></tr>
+                                    <tr><td>totalNumberOfRequests: </td><td th:text="${totalNumberOfRequests}"></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${configuration.logFilesEnabled}" class="card">
+            <div class="card-header" id="headingLogs">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseLogs"
+                            aria-expanded="false" aria-controls="collapseLogs">Log Files</button>
+                    <button id="button-delete-logs" type="button" class="btn btn-warning btn-sm" onclick="window.location.href='results?deleteLogs=true'">Delete log files</button>
+                </h5>
+            </div>
+            <div id="collapseLogs" class="collapse show" aria-labelledby="headingLogs" data-parent="#accordionMain">
+                <div class="card-body">
+                    <div class="col card" style="padding: 1em;">
+                        <div class="card-block">
+                            <h5 class="card-title">Log Files</h5>
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <th width="75%">Name</th>
+                                    <th width="25%" >Bytes</th>
+                                </tr>
+                                <tr th:each="logFile : ${logFiles}">
+                                    <td><a th:href="${logFile.url}"><span th:text="${logFile.name}"></span></a></td>
+                                    <td th:text="${logFile.byteSize}">Name</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

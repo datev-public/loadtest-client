@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <!-- Bootstrap 4 JS -->
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/popper.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <title>JMeter Runner - Edit Properties</title>
+</head>
+<body>
+
+<div class="container-fluid">
+    <h3><span>JMeter Runner - Edit Properties</span>&nbsp;<span th:if="${instanceIndex}">running in CF instance </span><span th:text="${instanceIndex}"></span></h3>
+
+    <div class="card">
+        <div id="editForm" aria-labelledby="editForm" >
+            <div class="card-body">
+                <form action="properties" method="post">
+                    <div class="form-group row">
+                        <label for="targetHost" class="col-sm-2 col-form-label">Target Host: </label>
+                        <div class="col-sm-10">
+                            <input class="form-control form-control-sm" type="text" id="targetHost" name="targetHost" th:value="${configuration.targetHost}"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="targetPort" class="col-sm-2 col-form-label">Target Protocol: </label>
+                        <div class="col-sm-10">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="targetProtocol" id="targetProtocolHttp" value="http" th:checked="${configuration.targetProtocol}=='http'">
+                                <label class="form-check-label" for="targetProtocolHttp">http</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="targetProtocol" id="targetProtocolHttps" value="https" th:checked="${configuration.targetProtocol}=='https'">
+                                <label class="form-check-label" for="targetProtocolHttps">https</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="targetPort" class="col-sm-2 col-form-label">Target Port: </label>
+                        <div class="col-sm-10">
+                            <input class="form-control form-control-sm" type="text" id="targetPort" name="targetPort" th:value="${configuration.targetPort}"/>
+                            <small id="targetPortHelp" class="form-text text-muted">Use 443 for https, 80 for http</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="numberOfThreads" class="col-sm-2 col-form-label">Number of threads: </label>
+                        <div class="col-sm-10">
+                            <select class="custom-select mr-sm-2" id="numberOfThreads" name="numberOfThreads" th:value="${configuration.numberOfThreads}">
+                                <option value="1" th:selected="${configuration.numberOfThreads} == 1">1</option>
+                                <option value="2" th:selected="${configuration.numberOfThreads} == 2">2</option>
+                                <option value="3" th:selected="${configuration.numberOfThreads} == 3">3</option>
+                                <option value="4" th:selected="${configuration.numberOfThreads} == 4">4</option>
+                                <option value="5" th:selected="${configuration.numberOfThreads} == 5">5</option>
+                                <option value="10" th:selected="${configuration.numberOfThreads} == 10">10</option>
+                                <option value="20" th:selected="${configuration.numberOfThreads} == 20">20</option>
+                                <option value="50" th:selected="${configuration.numberOfThreads} == 50">50</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="runsInOneLoop" class="col-sm-2 col-form-label">Runs in one loop: </label>
+                        <div class="col-sm-10">
+                            <select class="custom-select mr-sm-2" id="runsInOneLoop" name="runsInOneLoop" th:value="${configuration.runsInOneLoop}">
+                                <option value="1" th:selected="${configuration.runsInOneLoop} == 1">1</option>
+                                <option value="10" th:selected="${configuration.runsInOneLoop} == 10">10</option>
+                                <option value="100" th:selected="${configuration.runsInOneLoop} == 100">100</option>
+                                <option value="1000" th:selected="${configuration.runsInOneLoop} == 1000">1000</option>
+                                <option value="10000" th:selected="${configuration.runsInOneLoop} == 10000">10000</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="waitIntervalMilliseconds" class="col-sm-2 col-form-label">Wait interval after each full loop in milliseconds: </label>
+                        <div class="col-sm-10">
+                            <select class="custom-select mr-sm-2" id="waitIntervalMilliseconds" name="waitIntervalMilliseconds" th:value="${configuration.waitIntervalMilliseconds}">
+                                <option value="0" th:selected="${configuration.waitIntervalMilliseconds} == 0">0</option>
+                                <option value="10" th:selected="${configuration.waitIntervalMilliseconds} == 10">10</option>
+                                <option value="100" th:selected="${configuration.waitIntervalMilliseconds} == 100">100</option>
+                                <option value="1000" th:selected="${configuration.waitIntervalMilliseconds} == 1000">1000</option>
+                                <option value="10000" th:selected="${configuration.waitIntervalMilliseconds} == 10000">10000</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="csvFiles" class="col-sm-2 col-form-label">CSV files: </label>
+                        <div class="col-sm-10">
+                            <input class="form-control form-control-sm" type="text" id="csvFiles" name="csvFiles" th:value="${configuration.csvFiles}"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="logFilesEnabled" class="col-sm-2 col-form-label">Log Files Enabled: </label>
+                        <div class="col-sm-10">
+                            <input class="form-check-input" type="checkbox" value="true" id="logFilesEnabled" name="logFilesEnabled" th:checked="${configuration.logFilesEnabled}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button id="submit" type="submit" class="btn btn-primary">Submit</button>
+                        <button id="back" type="button" class="btn btn-secondary" onclick="window.location.href='results'">Back</button>
+                    </div>
+                </form>
+                <hr />
+                <form action="fileUpload" method="post" enctype="multipart/form-data">
+                    <div class="alert alert-success" role="alert" th:if="${successJmx}">JMX file was updated. Wait for end of loops in all instances or re-start all instances from Apps Manager!</div>
+                    <div class="alert alert-warning" th:if="${csvFilesInJmxFile}"><div><b>IMPORTANT:</b>The JMX files contains CSV data set files. The following CSV files have to be uploaded:</div>
+                        <ul>
+                            <li th:each="name : ${csvFilesInJmxFile}" th:text="${name}"></li>
+                        </ul>
+                    </div>
+                    <div class="alert alert-warning" role="alert" th:if="${errorJmx}" th:text="${errorJmx}"></div>
+                    <div class="alert alert-success" role="alert" th:if="${successCsv}">Support files were updated. Wait for end of loops in all instances or re-start all instances from Apps Manager!</div>
+                    <div class="alert alert-warning" role="alert" th:if="${errorCsv}" th:text="${errorCsv}"></div>
+                    <div class="form-group row">
+                        <label for="currentJmxFile" class="col-sm-2 col-form-label">Current JMX file: </label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control-file form-control-sm" name="currentJmxFile" id="currentJmxFile" readonly="true" disabled th:value="${configuration.jmxFile}"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="jmxFile" class="col-sm-2 col-form-label">New JMX file to be used: </label>
+                        <div class="col-sm-4">
+                            <input type="file" class="form-control-file form-control-sm" name="jmxFile" id="jmxFile">
+                        </div>
+                        <div class="col-sm-4">
+                            <button id="uploadJmx" type="submit" class="btn btn-primary">Upload</button>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="csvFile" class="col-sm-2 col-form-label">New CSV file to be used: </label>
+                        <div class="col-sm-4">
+                            <input type="file" class="form-control-file form-control-sm" name="csvFile" id="csvFile">
+                        </div>
+                        <div class="col-sm-4">
+                            <button id="uploadCsv" type="submit" class="btn btn-primary">Upload</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

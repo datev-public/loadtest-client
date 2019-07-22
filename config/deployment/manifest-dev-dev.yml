@@ -1,0 +1,34 @@
+---
+applications:
+  - name: loadtestclient-01
+    path: ../../target/loadtest-client.jar
+    instances: 1
+    memory: 1G
+    disk_quota: 1G
+    stack: cflinuxfs3
+    buildpacks:
+      - java_buildpack_offline_4_19_0
+    services:
+      - datev-environment-secure
+      - loadtestevents
+    routes:
+      - route: loadtestclient-01.pcfapps.dev.datev.de
+    env:
+      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 12.+ } }'
+      APP_LOG_LEVEL: INFO # INFO is the default
+      SPRING_PROFILES_ACTIVE: cloud # cloud is the default, multiple profiles are possible using comma
+      APP_CONFIG_START_RUNNING: true
+      APP_CONFIG_REDIS_ENABLED: true
+      APP_CONFIG_REDIS_PURGE_ON_START: true # only instance 0 will perform this
+      # if the JMX file performs n requests, the total number of requests in one loop is n * NUMBER_OF_THREADS * RUNS_IN_ONE_LOOP
+      APP_CONFIG_NUMBER_OF_THREADS: 20
+      APP_CONFIG_RUNS_IN_ONE_LOOP: 100
+      APP_CONFIG_NUMBER_OF_LOOPS: 10000
+      APP_CONFIG_POLL_INTERVAL_MILLISECONDS: 1000
+      APP_CONFIG_WAIT_INTERVAL_MILLISECONDS: 100
+      APP_CONFIG_SUMMARISER_INTERVAL: 30
+      # APP_CONFIG_JMX_FILE: 'jmx/load-mixed-with-remote.jmx'
+      APP_CONFIG_JMX_FILE: 'jmx/fib35-only.jmx'
+      APP_CONFIG_TARGET_PROTOCOL: https
+      APP_CONFIG_TARGET_HOST: 'loadtest1.pcfapps.dev.datev.de'
+      APP_CONFIG_TARGET_PORT: 443

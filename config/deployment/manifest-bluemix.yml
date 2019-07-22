@@ -1,0 +1,16 @@
+applications:
+  - name: loadtestclient-01
+    path: ../../target/loadtest-client.jar
+    instances: 1
+    memory: 1G
+    disk_quota: 2G
+    buildpacks:
+      - java_buildpack
+    env:
+      APP_LOG_LEVEL: INFO # INFO is the default
+      SPRING_PROFILES_ACTIVE: cloud # cloud is the default, multiple profiles are possible using comma
+      APP_CONFIG_NUMBER_OF_THREADS: 1
+      APP_CONFIG_NUMBER_OF_LOOPS: 10000
+      APP_CONFIG_TARGET_HOST: loadtest1.eu-gb.mybluemix.net
+      APP_CONFIG_SUMMARISER_INTERVAL: 60
+      APP_CONFIG_JMX_FILE: 'jmx/fib1-only-10threads-1000calls.jmx'
